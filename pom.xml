@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2020 - Elodrias Project (https://elodrias.de)
+  ~ by Noxyro (https://noxyro.me or https://github.com/noxyro)
+  ~ This program comes with ABSOLUTELY NO WARRANTY.
+  ~ This is free software, published under the GNU GPL v3 license
+  ~ and you are welcome to redistribute it under certain conditions.
+  ~ See full license (in project or at https://www.gnu.org/licenses/) for more details.
+  ~
+  -->
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>me.noxyro.templates</groupId>
+        <artifactId>kotlin</artifactId>
+        <version>1.0.4</version>
+        <relativePath>kotlin.pom.xml</relativePath>
+    </parent>
+
+    <groupId>de.elodrias</groupId>
+    <artifactId>elodrias</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Elodrias</name>
+
+    <properties>
+        <elodrias.groupid>de.elodrias.elodrias</elodrias.groupid>
+        <elodrias.version>${project.version}</elodrias.version>
+        <spigot.version>1.15.2-R0.1-SNAPSHOT</spigot.version>
+        <spigot.directory>${project.basedir}/../..</spigot.directory>
+        <spigot.server.directory>${spigot.directory}/Server</spigot.server.directory>
+        <spigot.server.pluginDirectory>${spigot.server.directory}/plugins</spigot.server.pluginDirectory>
+    </properties>
+
+    <repositories>
+        <!-- This adds the Spigot Maven repository to the build -->
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>${spigot.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <finalName>${project.name}</finalName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-jar</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${spigot.server.pluginDirectory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.directory}</directory>
+                                    <include>*.jar</include>
+                                    <exclude>*-*.jar</exclude>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
