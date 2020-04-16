@@ -10,15 +10,18 @@
 
 package de.elodrias.economy.event
 
+import de.elodrias.economy.currency.Currency
 import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
+import java.math.BigDecimal
 
 class PlayerBalanceChangeEvent(
         val player: Player,
-        val from: Double,
-        var to: Double
+        val currency: Currency,
+        val from: BigDecimal,
+        var to: BigDecimal
 ) : Event(), Cancellable {
 
     private var cancelled: Boolean = false

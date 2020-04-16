@@ -10,6 +10,8 @@
 
 package de.elodrias.feature.moneydrop
 
+import de.elodrias.feature.moneydrop.listener.MoneyDropListener
+import de.elodrias.feature.moneydrop.listener.MoneyPickupListener
 import de.elodrias.module.Module
 import org.bukkit.Material
 import org.bukkit.entity.EntityType
@@ -23,6 +25,7 @@ class MoneyDrop(plugin: Plugin) : Module(plugin, "moneydrop") {
 
     init {
         registerListener(MoneyDropListener(this))
+        registerListener(MoneyPickupListener(this))
     }
 
     private val dropValues = mapOf(
@@ -32,6 +35,7 @@ class MoneyDrop(plugin: Plugin) : Module(plugin, "moneydrop") {
             EntityType.CAT to 0.2,
             EntityType.CAVE_SPIDER to 0.5,
             EntityType.CHICKEN to 0.3,
+            EntityType.COD to 0.1,
             EntityType.COW to 0.4,
             EntityType.CREEPER to 2.0,
             EntityType.DOLPHIN to 0.5,
@@ -39,6 +43,7 @@ class MoneyDrop(plugin: Plugin) : Module(plugin, "moneydrop") {
             EntityType.DROWNED to 1.0,
             EntityType.ELDER_GUARDIAN to 10.0,
             EntityType.ENDERMAN to 5.0,
+            EntityType.ENDERMITE to 0.5,
             EntityType.ENDER_DRAGON to 100.0,
             EntityType.EVOKER to 3.0,
             EntityType.FOX to 0.5,
@@ -66,6 +71,7 @@ class MoneyDrop(plugin: Plugin) : Module(plugin, "moneydrop") {
             EntityType.RAVAGER to 3.0,
             EntityType.SALMON to 0.1,
             EntityType.SHEEP to 0.5,
+            EntityType.SHULKER to 10.0,
             EntityType.SILVERFISH to 0.5,
             EntityType.SKELETON to 1.5,
             EntityType.SKELETON_HORSE to 0.5,
@@ -83,6 +89,7 @@ class MoneyDrop(plugin: Plugin) : Module(plugin, "moneydrop") {
             EntityType.WANDERING_TRADER to 1.0,
             EntityType.WITCH to 2.0,
             EntityType.WITHER to 50.0,
+            EntityType.WITHER_SKELETON to 5.0,
             EntityType.WOLF to 0.5,
             EntityType.ZOMBIE to 1.0,
             EntityType.ZOMBIE_HORSE to 0.5,

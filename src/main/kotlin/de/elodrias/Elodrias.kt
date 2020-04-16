@@ -10,7 +10,9 @@
 
 package de.elodrias
 
+import de.elodrias.economy.Economy
 import de.elodrias.feature.moneydrop.MoneyDrop
+import de.elodrias.listener.ElodriasListener
 import de.elodrias.module.Module
 import de.elodrias.module.exception.ModuleAlreadyRegisteredException
 import de.elodrias.module.exception.ModuleNotRegisteredException
@@ -21,11 +23,14 @@ class Elodrias : JavaPlugin() {
     private val modules = mutableMapOf<String, Module>()
 
     override fun onEnable() {
+        this.server.pluginManager.registerEvents(ElodriasListener(), this)
+        registerModule(Economy(this))
         registerModule(MoneyDrop(this))
     }
 
     override fun onDisable() {
-        modules.forEach { unregisterModule(it.value) }
+        val toRemove = modules.values
+        toRemove.forEach { unregisterModule(it) }
     }
 
     private fun registerModule(module: Module) {

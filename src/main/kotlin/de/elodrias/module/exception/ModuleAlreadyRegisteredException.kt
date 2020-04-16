@@ -10,4 +10,7 @@
 
 package de.elodrias.module.exception
 
-class ModuleAlreadyRegisteredException(name: String) : Exception("Module \"$name\" is already registered")
+import de.elodrias.exception.AlreadyRegisteredException
+import de.elodrias.module.Module
+
+class ModuleAlreadyRegisteredException(name: String) : AlreadyRegisteredException(Module::class.java, name)

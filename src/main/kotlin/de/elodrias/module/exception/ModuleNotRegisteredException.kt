@@ -10,4 +10,7 @@
 
 package de.elodrias.module.exception
 
-class ModuleNotRegisteredException(name: String) : Exception("Module \"$name\" is not registered")
+import de.elodrias.exception.NotRegisteredException
+import de.elodrias.module.Module
+
+class ModuleNotRegisteredException(name: String) : NotRegisteredException(Module::class.java, name)

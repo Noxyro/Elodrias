@@ -10,6 +10,18 @@
 
 package de.elodrias.listener
 
+import org.bukkit.Bukkit
+import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.entity.ItemMergeEvent
 
-class ElodriasListener : Listener
+class ElodriasListener : Listener {
+
+    @EventHandler
+    fun onItemMerge(event: ItemMergeEvent) {
+        Bukkit.broadcastMessage("Merge event: ${event.entityType} | ${event.entity.itemStack} | ${event.target.itemStack}")
+    }
+
+
+
+}
