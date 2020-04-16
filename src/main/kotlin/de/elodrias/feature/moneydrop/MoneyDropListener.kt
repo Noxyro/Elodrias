@@ -38,7 +38,7 @@ class MoneyDropListener(
         if (dropValue == 0.0) return // No value
 
         // Randomized value ranges from half of Value to double of value
-        val randomizedValue = dropValue / 2.0 + (((dropValue * 2) - (dropValue / 2)) * Random.nextDouble())
+        val randomizedValue = dropValue / 2.0 + (dropValue * Random.nextDouble())
         val stack = moneyDrop.getItemStackForValue(randomizedValue) ?: return // Retrieve item stack for value
         event.drops.add(stack) // Add the items to drops
     }
