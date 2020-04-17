@@ -8,10 +8,12 @@
  *
  */
 
-package de.elodrias.feature.moneydrop
+package de.elodrias.feature.currencydrops
 
-import de.elodrias.feature.moneydrop.listener.MoneyDropListener
-import de.elodrias.feature.moneydrop.listener.MoneyPickupListener
+import de.elodrias.economy.Economy
+import de.elodrias.feature.currencydrops.listener.CurrencyDropListener
+import de.elodrias.feature.currencydrops.listener.CurrencyPickupListener
+import de.elodrias.feature.currencydrops.listener.EntityCurrencyPickupListener
 import de.elodrias.module.Module
 import org.bukkit.Material
 import org.bukkit.entity.EntityType
@@ -21,12 +23,10 @@ import org.bukkit.persistence.PersistentDataHolder
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.Plugin
 
-class MoneyDrop(plugin: Plugin) : Module(plugin, "moneydrop") {
-
-    init {
-        registerListener(MoneyDropListener(this))
-        registerListener(MoneyPickupListener(this))
-    }
+class CurrencyDrops(
+        plugin: Plugin,
+        private val economy: Economy
+) : Module(plugin, CurrencyDrops::class.java) {
 
     private val dropValues = mapOf(
             EntityType.BAT to 0.1,
@@ -46,7 +46,7 @@ class MoneyDrop(plugin: Plugin) : Module(plugin, "moneydrop") {
             EntityType.ENDERMITE to 0.5,
             EntityType.ENDER_DRAGON to 100.0,
             EntityType.EVOKER to 3.0,
-            EntityType.FOX to 0.5,
+            EntityType.FOX to 100.0,
             EntityType.GHAST to 10.0,
             EntityType.GIANT to 50.0,
             EntityType.GUARDIAN to 5.0,
@@ -104,6 +104,11 @@ class MoneyDrop(plugin: Plugin) : Module(plugin, "moneydrop") {
 
     private val amountKey = createNamespacedKey("amount")
 
+    override fun init() {
+        registerListener(CurrencyDropListener(this))
+        registerListener(CurrencyPickupListener(this))
+        registerListener(EntityCurrencyPickupListener(economy))
+    }
 
     fun getDropValue(type: EntityType): Double {
         return dropValues[type] ?: 0.0

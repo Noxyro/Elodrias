@@ -11,34 +11,42 @@
 package de.elodrias
 
 import de.elodrias.economy.Economy
-import de.elodrias.feature.moneydrop.MoneyDrop
+import de.elodrias.feature.currencydrops.CurrencyDrops
+import de.elodrias.feature.healthbars.HealthBars
 import de.elodrias.listener.ElodriasListener
 import de.elodrias.module.Module
 import de.elodrias.module.exception.ModuleAlreadyRegisteredException
-import de.elodrias.module.exception.ModuleNotRegisteredException
 import org.bukkit.plugin.java.JavaPlugin
 
 class Elodrias : JavaPlugin() {
 
-    private val modules = mutableMapOf<String, Module>()
+    private val modules: LinkedHashSet<Module> = linkedSetOf()
+
+    override fun onLoad() {
+        val economy = Economy(this)
+        registerModule(economy)
+        registerModule(CurrencyDrops(this, economy))
+        registerModule(HealthBars(this))
+        modules.forEach { it.init() }
+    }
 
     override fun onEnable() {
         this.server.pluginManager.registerEvents(ElodriasListener(), this)
-        registerModule(Economy(this))
-        registerModule(MoneyDrop(this))
+        registerModuleListeners()
+        modules.forEach { it.enable() }
     }
 
     override fun onDisable() {
-        val toRemove = modules.values
-        toRemove.forEach { unregisterModule(it) }
+        modules.forEach { it.disable() }
     }
 
     private fun registerModule(module: Module) {
-        modules.putIfAbsent(module.name, module)?.also { throw ModuleAlreadyRegisteredException(module.name) }
-        module.listeners.forEach { this.server.pluginManager.registerEvents(it, this) }
+        if (!modules.add(module)) {
+            throw ModuleAlreadyRegisteredException(module.getName())
+        }
     }
 
-    private fun unregisterModule(module: Module) {
-        modules.remove(module.name) ?: throw ModuleNotRegisteredException(module.name)
+    private fun registerModuleListeners() {
+        modules.forEach { module -> module.listeners.forEach { this.server.pluginManager.registerEvents(it, this) } }
     }
 }

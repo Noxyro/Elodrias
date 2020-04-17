@@ -16,7 +16,7 @@ import org.bukkit.plugin.Plugin
 
 abstract class Module(
         val plugin: Plugin,
-        val name: String
+        private val clazz: Class<*>
 ) {
 
     val listeners = mutableListOf<Listener>()
@@ -29,8 +29,18 @@ abstract class Module(
         listeners.remove(listener)
     }
 
-    fun createNamespacedKey(key: String): NamespacedKey {
-        return NamespacedKey(plugin, "$name.$key")
+    fun getName(): String {
+        return clazz.simpleName.toLowerCase()
     }
+
+    fun createNamespacedKey(key: String): NamespacedKey {
+        return NamespacedKey(plugin, "${getName()}.$key")
+    }
+
+    open fun init() {}
+
+    open fun enable() {}
+
+    open fun disable() {}
 
 }

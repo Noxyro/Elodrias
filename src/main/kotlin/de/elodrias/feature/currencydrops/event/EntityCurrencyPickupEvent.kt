@@ -8,16 +8,16 @@
  *
  */
 
-package de.elodrias.feature.moneydrop.event
+package de.elodrias.feature.currencydrops.event
 
+import org.bukkit.entity.Entity
 import org.bukkit.entity.Item
-import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
 
-class PlayerMoneyPickupEvent(
-        val player: Player,
+class EntityCurrencyPickupEvent(
+        val entity: Entity,
         val item: Item,
         var amount: Double
 ) : Event(), Cancellable {

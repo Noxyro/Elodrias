@@ -8,23 +8,16 @@
  *
  */
 
-package de.elodrias.feature.moneydrop.listener
+package de.elodrias.feature.currencydrops.listener
 
-import de.elodrias.economy.event.PlayerBalanceChangeEvent
-import de.elodrias.feature.moneydrop.MoneyDrop
-import de.elodrias.feature.moneydrop.event.PlayerMoneyPickupEvent
-import org.bukkit.ChatColor
-import org.bukkit.NamespacedKey
+import de.elodrias.feature.currencydrops.CurrencyDrops
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDeathEvent
-import org.bukkit.persistence.PersistentDataHolder
-import org.bukkit.persistence.PersistentDataType
-import kotlin.math.round
 import kotlin.random.Random
 
-class MoneyDropListener(
-        private val moneyDrop: MoneyDrop
+class CurrencyDropListener(
+        private val currencyDrops: CurrencyDrops
 ) : Listener {
 
     @EventHandler
@@ -34,13 +27,14 @@ class MoneyDropListener(
         // Only valuable entities drop
         if (event.droppedExp == 0) return
         // Retrieve value for entity type
-        val dropValue = moneyDrop.getDropValue(event.entityType)
+        val dropValue = currencyDrops.getDropValue(event.entityType)
         // No value
         if (dropValue == 0.0) return
+        // Retrieve item stack for value
+        val stack = currencyDrops.getItemStackForValue(dropValue / 2.0 + (dropValue * Random.nextDouble())) ?: return
 
-        // Randomized value ranges from half of Value to double of value
-        val randomizedValue = dropValue / 2.0 + (dropValue * Random.nextDouble())
-        val stack = moneyDrop.getItemStackForValue(randomizedValue) ?: return // Retrieve item stack for value
+
+
         event.drops.add(stack) // Add the items to drops
     }
 }

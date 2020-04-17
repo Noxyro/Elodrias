@@ -1,7 +1,6 @@
 package de.elodrias.economy.currency
 
 import java.math.BigDecimal
-import java.math.MathContext
 import java.math.RoundingMode
 
 class Currency(
@@ -30,7 +29,7 @@ class Currency(
 
         if (!meta.isNameTrailing) { sb.append(name) }
         sb.append(meta.prefix)
-        if (meta.isRounding) sb.append(value.round(MathContext(meta.decimals, RoundingMode.HALF_UP)))
+        if (meta.isRounding) sb.append(value.setScale(meta.decimals, RoundingMode.HALF_EVEN))
         sb.append(meta.suffix)
         if (meta.isNameTrailing) { sb.append(name) }
 
