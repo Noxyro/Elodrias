@@ -10,7 +10,7 @@
 
 package de.elodrias.features.healthbars
 
-import de.elodrias.features.healthbars.listener.HealthBarUpdateListener
+import de.elodrias.features.healthbars.listener.HealthBarsListener
 import de.elodrias.module.Module
 import net.md_5.bungee.api.ChatColor
 import org.bukkit.plugin.Plugin
@@ -18,11 +18,7 @@ import kotlin.math.ceil
 
 class HealthBars(plugin: Plugin) : Module(plugin, HealthBars::class.java) {
 
-    private val healthBarChar = '|'
-    private val healthBarPrefix = "${ChatColor.WHITE}("
-    private val healthBarSuffix = "${ChatColor.WHITE})"
     private val colors = listOf(
-            ChatColor.BLACK,
             ChatColor.DARK_RED,
             ChatColor.RED,
             ChatColor.GOLD,
@@ -31,15 +27,15 @@ class HealthBars(plugin: Plugin) : Module(plugin, HealthBars::class.java) {
             ChatColor.DARK_GREEN
     )
 
-    private val healthBarCache: MutableMap<Int, Map<Int, String>> = mutableMapOf()
+    private val healthBarCache: MutableMap<Int, HealthBar> = mutableMapOf()
 
     override fun init() {
-        registerListener(HealthBarUpdateListener(this))
+        registerListener(HealthBarsListener(this))
     }
 
-    private fun generateHealthBars(length: Int): Map<Int, String> {
+    /*private fun generateHealthBars(length: Int): Map<Int, String> {
         if (length <= 0) throw IllegalArgumentException("Length of health bars can not be zero or negative")
-        if (healthBarCache.containsKey(length)) return healthBarCache[length]!!
+        if (healthBarStrings.containsKey(length)) return healthBarStrings[length]!!
 
         val sb = StringBuilder()
         val generatedHealthBars: MutableMap<Int, String> = mutableMapOf()
@@ -55,15 +51,18 @@ class HealthBars(plugin: Plugin) : Module(plugin, HealthBars::class.java) {
         }
 
         return generatedHealthBars
-    }
+    }*/
 
     fun getHealthBar(health: Double, maxHealth: Double, length: Int = maxHealth.toInt()): String {
-        val relativeLength = ceil((if (health > maxHealth) 1.0 else if (health < 0 || maxHealth == 0.0) 0.0 else health / maxHealth) * length).toInt()
+        val relative = (if (health > maxHealth) 1.0 else if (health < 0 || maxHealth == 0.0) 0.0 else health / maxHealth)
         return healthBarCache.getOrPut(length) {
-            generateHealthBars(length)
-        }.getOrElse(relativeLength) {
-            throw Exception("No health bar of length $length found for value $relativeLength")
-        }
+            HealthBar(length)
+        }.getFilledTo(ceil(relative * length).toInt(), pickColor(relative))
+    }
+
+    private fun pickColor(relative: Double): ChatColor {
+        if (relative <= 0.0) return colors[0]
+        return colors[ceil(relative * colors.size - 1).toInt()]
     }
 
 }
