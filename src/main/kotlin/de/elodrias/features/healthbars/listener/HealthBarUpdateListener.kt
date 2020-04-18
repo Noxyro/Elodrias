@@ -1,6 +1,16 @@
-package de.elodrias.feature.healthbars.listener
+/*
+ * Copyright (c) 2020 - Elodrias Project (https://elodrias.de)
+ * by Noxyro (https://noxyro.me or https://github.com/noxyro)
+ * This program comes with ABSOLUTELY NO WARRANTY.
+ * This is free software, published under the GNU GPL v3 license
+ * and you are welcome to redistribute it under certain conditions.
+ * See full license (in project or at https://www.gnu.org/licenses/) for more details.
+ *
+ */
 
-import de.elodrias.feature.healthbars.HealthBars
+package de.elodrias.features.healthbars.listener
+
+import de.elodrias.features.healthbars.HealthBars
 import org.bukkit.attribute.Attribute
 import org.bukkit.entity.LivingEntity
 import org.bukkit.event.EventHandler

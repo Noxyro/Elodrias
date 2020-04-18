@@ -11,8 +11,8 @@
 package de.elodrias
 
 import de.elodrias.economy.Economy
-import de.elodrias.feature.currencydrops.CurrencyDrops
-import de.elodrias.feature.healthbars.HealthBars
+import de.elodrias.features.currencydrops.CurrencyDrops
+import de.elodrias.features.healthbars.HealthBars
 import de.elodrias.listener.ElodriasListener
 import de.elodrias.module.Module
 import de.elodrias.module.exception.ModuleAlreadyRegisteredException

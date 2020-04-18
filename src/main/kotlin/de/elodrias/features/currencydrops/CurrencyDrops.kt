@@ -8,12 +8,12 @@
  *
  */
 
-package de.elodrias.feature.currencydrops
+package de.elodrias.features.currencydrops
 
 import de.elodrias.economy.Economy
-import de.elodrias.feature.currencydrops.listener.CurrencyDropListener
-import de.elodrias.feature.currencydrops.listener.CurrencyPickupListener
-import de.elodrias.feature.currencydrops.listener.EntityCurrencyPickupListener
+import de.elodrias.features.currencydrops.listener.CurrencyDropListener
+import de.elodrias.features.currencydrops.listener.CurrencyPickupListener
+import de.elodrias.features.currencydrops.listener.EntityCurrencyPickupListener
 import de.elodrias.module.Module
 import org.bukkit.Material
 import org.bukkit.entity.EntityType

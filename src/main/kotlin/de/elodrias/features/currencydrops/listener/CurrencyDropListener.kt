@@ -8,9 +8,9 @@
  *
  */
 
-package de.elodrias.feature.currencydrops.listener
+package de.elodrias.features.currencydrops.listener
 
-import de.elodrias.feature.currencydrops.CurrencyDrops
+import de.elodrias.features.currencydrops.CurrencyDrops
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDeathEvent

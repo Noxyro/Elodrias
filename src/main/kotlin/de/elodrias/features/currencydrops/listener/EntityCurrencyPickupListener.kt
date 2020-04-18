@@ -1,8 +1,18 @@
-package de.elodrias.feature.currencydrops.listener
+/*
+ * Copyright (c) 2020 - Elodrias Project (https://elodrias.de)
+ * by Noxyro (https://noxyro.me or https://github.com/noxyro)
+ * This program comes with ABSOLUTELY NO WARRANTY.
+ * This is free software, published under the GNU GPL v3 license
+ * and you are welcome to redistribute it under certain conditions.
+ * See full license (in project or at https://www.gnu.org/licenses/) for more details.
+ *
+ */
+
+package de.elodrias.features.currencydrops.listener
 
 import de.elodrias.economy.Economy
 import de.elodrias.economy.account.AccountType
-import de.elodrias.feature.currencydrops.event.EntityCurrencyPickupEvent
+import de.elodrias.features.currencydrops.event.EntityCurrencyPickupEvent
 import org.bukkit.ChatColor
 import org.bukkit.Sound
 import org.bukkit.entity.Player

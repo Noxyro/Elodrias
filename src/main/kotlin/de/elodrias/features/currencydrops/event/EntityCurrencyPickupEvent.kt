@@ -8,7 +8,7 @@
  *
  */
 
-package de.elodrias.feature.currencydrops.event
+package de.elodrias.features.currencydrops.event
 
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Item
