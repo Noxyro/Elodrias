@@ -16,6 +16,7 @@ import de.elodrias.features.healthbars.HealthBars
 import de.elodrias.listener.ElodriasListener
 import de.elodrias.module.Module
 import de.elodrias.module.exception.ModuleAlreadyRegisteredException
+import org.bukkit.entity.Entity
 import org.bukkit.plugin.java.JavaPlugin
 
 class Elodrias : JavaPlugin() {
@@ -33,6 +34,7 @@ class Elodrias : JavaPlugin() {
     override fun onEnable() {
         this.server.pluginManager.registerEvents(ElodriasListener(), this)
         registerModuleListeners()
+        invokeModuleInitializers()
         modules.forEach { it.enable() }
     }
 
@@ -48,5 +50,22 @@ class Elodrias : JavaPlugin() {
 
     private fun registerModuleListeners() {
         modules.forEach { module -> module.listeners.forEach { this.server.pluginManager.registerEvents(it, this) } }
+    }
+
+    private fun invokeModuleInitializers() {
+        modules.forEach { module ->
+            module.initializers.forEach {
+                val objects: Collection<Any>? = when (it.key) {
+                    Entity::class.java -> this.server.worlds.flatMap { world -> world.entities }
+                    else -> null
+                }
+
+                objects?.forEach { obj ->
+                    it.value.forEach { init ->
+                        init.invoke(obj)
+                    }
+                }
+            }
+        }
     }
 }

@@ -13,6 +13,10 @@ package de.elodrias.features.healthbars
 import de.elodrias.features.healthbars.listener.HealthBarsListener
 import de.elodrias.module.Module
 import net.md_5.bungee.api.ChatColor
+import org.bukkit.attribute.Attribute
+import org.bukkit.entity.Entity
+import org.bukkit.entity.LivingEntity
+import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import kotlin.math.ceil
 
@@ -31,6 +35,16 @@ class HealthBars(plugin: Plugin) : Module(plugin, HealthBars::class.java) {
 
     override fun init() {
         registerListener(HealthBarsListener(this))
+        registerInitializers(Entity::class.java, {
+            if (it is LivingEntity) {
+                if (it !is Player) {
+                    it.getAttribute(Attribute.GENERIC_MAX_HEALTH)?.value?.let { maxHealth ->
+                        it.customName = getHealthBar(it.health, maxHealth)
+                        it.isCustomNameVisible = it.health != maxHealth
+                    }
+                }
+            }
+        })
     }
 
     /*private fun generateHealthBars(length: Int): Map<Int, String> {
@@ -58,6 +72,11 @@ class HealthBars(plugin: Plugin) : Module(plugin, HealthBars::class.java) {
         return healthBarCache.getOrPut(length) {
             HealthBar(length)
         }.getFilledTo(ceil(relative * length).toInt(), pickColor(relative))
+    }
+
+    fun getHealthBar(livingEntity: LivingEntity): String {
+        return getHealthBar(livingEntity.health, livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH)?.value
+                ?: throw Exception("Tried getting max health attribute from entity without max health"))
     }
 
     private fun pickColor(relative: Double): ChatColor {

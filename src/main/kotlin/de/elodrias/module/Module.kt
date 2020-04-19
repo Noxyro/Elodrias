@@ -20,6 +20,7 @@ abstract class Module(
 ) {
 
     val listeners = mutableListOf<Listener>()
+    val initializers = mutableMapOf<Class<*>, Array<out (Any) -> Unit>>()
 
     protected fun registerListener(listener: Listener) {
         listeners.add(listener)
@@ -27,6 +28,14 @@ abstract class Module(
 
     protected fun unregisterListener(listener: Listener) {
         listeners.remove(listener)
+    }
+
+    protected fun registerInitializers(clazz: Class<*>, vararg initializers: (Any) -> Unit) {
+        this.initializers.putIfAbsent(clazz, initializers)
+    }
+
+    protected fun unregisterInitializers(clazz: Class<*>) {
+        initializers.remove(clazz)
     }
 
     fun getName(): String {

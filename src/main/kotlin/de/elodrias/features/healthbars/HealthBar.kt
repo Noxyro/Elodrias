@@ -20,7 +20,7 @@ data class HealthBar(
         val suffix: String = "${ChatColor.WHITE})"
 ) {
 
-    private val stringCache: Array<Array<Array<String>>> = Array(ChatColor.values().size) { Array(ChatColor.values().size) { Array(length) { "" } } }
+    private val stringCache: Array<Array<Array<String>>> = Array(ChatColor.values().size) { Array(ChatColor.values().size) { Array(length + 1) { "" } } }
 
     fun getFilledTo(amount: Int, barColor: ChatColor = ChatColor.WHITE, missingColor: ChatColor = ChatColor.BLACK): String {
         if (amount < 0) throw IllegalArgumentException("Can not get negatively filled health bar")
