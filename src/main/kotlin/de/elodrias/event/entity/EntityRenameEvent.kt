@@ -8,20 +8,18 @@
  *
  */
 
-package de.elodrias.economy.event
+package de.elodrias.event.entity
 
-import de.elodrias.economy.account.Account
-import de.elodrias.economy.currency.Currency
 import de.elodrias.event.CancellableEvent
+import org.bukkit.entity.Entity
+import org.bukkit.entity.Player
 import org.bukkit.event.HandlerList
-import java.math.BigDecimal
 
-class AccountBalanceChangeEvent(
-        val account: Account,
-        val currency: Currency,
-        val before: BigDecimal,
-        var change: BigDecimal,
-        var after: BigDecimal
+class EntityRenameEvent(
+        val entity: Entity,
+        val player: Player,
+        val oldName: String?,
+        val newName: String
 ) : CancellableEvent() {
 
     companion object {

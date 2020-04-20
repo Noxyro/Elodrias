@@ -8,22 +8,22 @@
  *
  */
 
-package de.elodrias.economy.util
+package de.elodrias.persistence
 
-import de.elodrias.persistence.ComplexPersistentDataType
+import de.elodrias.economy.util.BigDecimalPersistentDataType
 import org.bukkit.persistence.PersistentDataAdapterContext
-import java.math.BigDecimal
+import org.bukkit.persistence.PersistentDataType
 
-class BigDecimalPersistentDataType : ComplexPersistentDataType<BigDecimal>() {
+abstract class ComplexPersistentDataType<T> : PersistentDataType<String, T> {
 
     companion object {
-        val INSTANCE = BigDecimalPersistentDataType()
+        val BIG_DECIMAL = BigDecimalPersistentDataType.INSTANCE
     }
 
-    override fun getComplexType(): Class<BigDecimal> = BigDecimal::class.java
+    override fun getPrimitiveType(): Class<String> = String::class.java
 
-    override fun fromPrimitive(primitive: String, adapterContext: PersistentDataAdapterContext): BigDecimal {
-        return BigDecimal(primitive)
+    override fun toPrimitive(complex: T, adapterContext: PersistentDataAdapterContext): String {
+        return complex.toString()
     }
 
 }

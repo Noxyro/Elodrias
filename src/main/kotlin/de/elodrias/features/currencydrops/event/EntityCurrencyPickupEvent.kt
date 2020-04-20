@@ -10,38 +10,26 @@
 
 package de.elodrias.features.currencydrops.event
 
+import de.elodrias.event.CancellableEvent
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Item
-import org.bukkit.event.Cancellable
-import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
 
 class EntityCurrencyPickupEvent(
         val entity: Entity,
         val item: Item,
         var amount: Double
-) : Event(), Cancellable {
-
-    private var cancelled: Boolean = false
+) : CancellableEvent() {
 
     companion object {
         @JvmStatic
         private val HANDLERS = HandlerList()
 
         @JvmStatic
-        fun getHandlerList(): HandlerList =
-                HANDLERS
+        fun getHandlerList(): HandlerList = HANDLERS
     }
 
     override fun getHandlers(): HandlerList {
         return HANDLERS
-    }
-
-    override fun setCancelled(cancelled: Boolean) {
-        this.cancelled = cancelled
-    }
-
-    override fun isCancelled(): Boolean {
-        return cancelled
     }
 }

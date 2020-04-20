@@ -8,22 +8,21 @@
  *
  */
 
-package de.elodrias.features.currencydrops.event
+package de.elodrias.event
 
-import de.elodrias.event.CancellableEvent
-import org.bukkit.event.HandlerList
+import org.bukkit.event.Cancellable
+import org.bukkit.event.Event
 
-class EntityCurrencyDropEvent : CancellableEvent() {
+abstract class CancellableEvent : Event(), Cancellable {
 
-    companion object {
-        @JvmStatic
-        private val HANDLERS = HandlerList()
+    private var cancelled: Boolean = false
 
-        @JvmStatic
-        fun getHandlerList(): HandlerList = HANDLERS
+    override fun setCancelled(cancelled: Boolean) {
+        this.cancelled = cancelled
     }
 
-    override fun getHandlers(): HandlerList {
-        return HANDLERS
+    override fun isCancelled(): Boolean {
+        return cancelled
     }
+
 }

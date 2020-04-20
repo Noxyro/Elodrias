@@ -10,28 +10,19 @@
 
 package de.elodrias.features.healthbars.listener
 
+import de.elodrias.event.entity.EntityRenameEvent
 import de.elodrias.features.healthbars.HealthBars
 import org.bukkit.entity.LivingEntity
 import org.bukkit.event.EventHandler
-import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
-import org.bukkit.event.entity.EntityDamageEvent
 
-class HealthBarsListener(
+class EntityRenameListener(
         private val healthBars: HealthBars
 ) : Listener {
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    fun onEntityDamage(event: EntityDamageEvent) {
-        // Already cancelled
-        if (event.isCancelled) return
-        // Not alive, no health bar
+    @EventHandler
+    fun onEntityRename(event: EntityRenameEvent) {
         if (event.entity !is LivingEntity) return
-        // No damage, no change
-        if (event.finalDamage == 0.0) return
-
-        val livingEntity = event.entity as LivingEntity
-        healthBars.displayHealthBar(livingEntity, livingEntity.health - event.finalDamage)
+        healthBars.storePersistentCustomName(event.entity, event.newName)
     }
-
 }
