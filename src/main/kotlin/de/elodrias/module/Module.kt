@@ -10,46 +10,64 @@
 
 package de.elodrias.module
 
-import org.bukkit.NamespacedKey
-import org.bukkit.event.Listener
-import org.bukkit.plugin.Plugin
-
 abstract class Module(
-        val plugin: Plugin,
-        private val clazz: Class<*>
+    val identifier: String
 ) {
 
-    val listeners = mutableListOf<Listener>()
-    val initializers = mutableMapOf<Class<*>, Array<out (Any) -> Unit>>()
+    private var initialized: Boolean = false
 
-    protected fun registerListener(listener: Listener) {
-        listeners.add(listener)
+    private var enabled: Boolean = false
+
+    val subModules = mutableMapOf<String, Module>()
+
+    fun init(): Boolean {
+        if (initialized) return false
+
+        onInit()
+        subModules.forEach { it.value.init() }
+
+        initialized = true
+        return true
     }
 
-    protected fun unregisterListener(listener: Listener) {
-        listeners.remove(listener)
+    fun enable(): Boolean {
+        if (enabled) return false
+        if (!initialized) if (!init()) return false
+
+        onEnable()
+        subModules.forEach { it.value.enable() }
+
+        enabled = true
+        return true
     }
 
-    protected fun registerInitializers(clazz: Class<*>, vararg initializers: (Any) -> Unit) {
-        this.initializers.putIfAbsent(clazz, initializers)
+    fun disable(): Boolean {
+        if (!enabled) return false
+
+        onDisable()
+        subModules.forEach { it.value.disable() }
+
+        enabled = false
+        initialized = false
+        return true
     }
 
-    protected fun unregisterInitializers(clazz: Class<*>) {
-        initializers.remove(clazz)
+    fun isInitialized() = initialized
+
+    fun isEnabled() = enabled
+
+    protected fun registerSubModule(module: Module) {
+        subModules.putIfAbsent(module.identifier, module)
     }
 
-    fun getName(): String {
-        return clazz.simpleName.toLowerCase()
+    protected fun unregisterSubModule(module: Module) {
+        subModules.remove(module.identifier)
     }
 
-    fun createNamespacedKey(key: String): NamespacedKey {
-        return NamespacedKey(plugin, "${getName()}.$key")
-    }
+    protected abstract fun onInit()
 
-    open fun init() {}
+    protected abstract fun onEnable()
 
-    open fun enable() {}
-
-    open fun disable() {}
+    protected abstract fun onDisable()
 
 }

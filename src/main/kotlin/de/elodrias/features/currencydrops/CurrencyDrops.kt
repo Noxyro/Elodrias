@@ -14,9 +14,10 @@ import de.elodrias.economy.Economy
 import de.elodrias.features.currencydrops.listener.CurrencyDropListener
 import de.elodrias.features.currencydrops.listener.CurrencyPickupListener
 import de.elodrias.features.currencydrops.listener.EntityCurrencyPickupListener
-import de.elodrias.module.Module
+import de.elodrias.module.Feature
 import org.bukkit.Material
 import org.bukkit.entity.EntityType
+import org.bukkit.entity.Item
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataHolder
@@ -24,19 +25,19 @@ import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.Plugin
 
 class CurrencyDrops(
-        plugin: Plugin,
-        private val economy: Economy
-) : Module(plugin, CurrencyDrops::class.java) {
+    plugin: Plugin,
+    private val economy: Economy
+) : Feature(plugin, CurrencyDrops::class.java) {
 
     private val dropValues = mapOf(
-            EntityType.BAT to 0.1,
-            EntityType.BEE to 0.1,
-            EntityType.BLAZE to 4.0,
-            EntityType.CAT to 0.2,
-            EntityType.CAVE_SPIDER to 0.5,
-            EntityType.CHICKEN to 0.3,
-            EntityType.COD to 0.1,
-            EntityType.COW to 0.4,
+        EntityType.BAT to 0.1,
+        EntityType.BEE to 0.1,
+        EntityType.BLAZE to 4.0,
+        EntityType.CAT to 0.2,
+        EntityType.CAVE_SPIDER to 0.5,
+        EntityType.CHICKEN to 0.3,
+        EntityType.COD to 0.1,
+        EntityType.COW to 0.4,
             EntityType.CREEPER to 2.0,
             EntityType.DOLPHIN to 0.5,
             EntityType.DONKEY to 0.5,
@@ -99,15 +100,24 @@ class CurrencyDrops(
     private val rangesToItemStack = mapOf(
             0.0..1.0 to (ItemStack(Material.GOLD_NUGGET) to 64.0),
             1.0..64.0 to (ItemStack(Material.GOLD_INGOT) to 1.0),
-            64.0..Double.POSITIVE_INFINITY to (ItemStack(Material.GOLD_BLOCK) to 0.015625) // 1 / 64
+        64.0..Double.POSITIVE_INFINITY to (ItemStack(Material.GOLD_BLOCK) to 0.015625) // 1 / 64
     )
 
     private val amountKey = createNamespacedKey("amount")
 
-    override fun init() {
+    override fun onInit() {
         registerListener(CurrencyDropListener(this))
         registerListener(CurrencyPickupListener(this))
         registerListener(EntityCurrencyPickupListener(economy))
+    }
+
+    override fun onTeardown() {
+        plugin.server.worlds.forEach { world ->
+            world.entities
+                .filter { it.type == EntityType.DROPPED_ITEM }
+                .filter { isTaggedItemStack((it as Item).itemStack) }
+                .forEach { it.remove() }
+        }
     }
 
     fun getDropValue(type: EntityType): Double {

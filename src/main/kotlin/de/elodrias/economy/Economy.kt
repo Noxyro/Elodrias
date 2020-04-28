@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2020 - Elodrias Project (https://elodrias.de)
+ * by Noxyro (https://noxyro.me or https://github.com/noxyro)
+ * This program comes with ABSOLUTELY NO WARRANTY.
+ * This is free software, published under the GNU GPL v3 license
+ * and you are welcome to redistribute it under certain conditions.
+ * See full license (in project or at https://www.gnu.org/licenses/) for more details.
+ *
+ */
+
 package de.elodrias.economy
 
 import de.elodrias.economy.account.Account
@@ -7,16 +17,16 @@ import de.elodrias.economy.currency.CurrencyDisplayMeta
 import de.elodrias.economy.exception.CurrencyAlreadyRegisteredException
 import de.elodrias.economy.exception.CurrencyNotRegisteredException
 import de.elodrias.economy.listener.PlayerBalanceChangeListener
-import de.elodrias.module.Module
+import de.elodrias.module.Feature
 import org.bukkit.plugin.Plugin
 
-class Economy(plugin: Plugin) : Module(plugin, Economy::class.java) {
+class Economy(plugin: Plugin) : Feature(plugin, Economy::class.java) {
 
     private val accounts: MutableMap<String, Account> = mutableMapOf()
     private val currencies: MutableMap<String, Currency> = mutableMapOf()
     private var defaultCurrency: Currency? = null
 
-    init {
+    override fun onInit() {
         registerListener(PlayerBalanceChangeListener(this))
         registerCurrency(Currency("gold", true, CurrencyDisplayMeta("Gold", "Gold", 2, "", " ")))
     }

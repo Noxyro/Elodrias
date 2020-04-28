@@ -8,9 +8,9 @@
  *
  */
 
-package de.elodrias.module.exception
+package de.elodrias.command.exception
 
-import de.elodrias.exception.AlreadyRegisteredException
-import de.elodrias.module.Feature
+import de.elodrias.command.CommandModule
+import de.elodrias.exception.NotRegisteredException
 
-class ModuleAlreadyRegisteredException(name: String) : AlreadyRegisteredException(Feature::class.java, name)
+class CommandNotRegisteredException(name: String) : NotRegisteredException(CommandModule::class.java, name)

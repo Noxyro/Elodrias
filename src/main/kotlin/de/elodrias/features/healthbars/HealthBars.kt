@@ -14,7 +14,7 @@ import de.elodrias.features.healthbars.event.HealthBarDisplayEvent
 import de.elodrias.features.healthbars.event.HealthBarHideEvent
 import de.elodrias.features.healthbars.event.HealthBarUpdateEvent
 import de.elodrias.features.healthbars.listener.HealthBarsListener
-import de.elodrias.module.Module
+import de.elodrias.module.Feature
 import net.md_5.bungee.api.ChatColor
 import org.bukkit.NamespacedKey
 import org.bukkit.attribute.Attribute
@@ -26,15 +26,15 @@ import org.bukkit.scheduler.BukkitTask
 import java.util.*
 import kotlin.math.ceil
 
-class HealthBars(plugin: Plugin) : Module(plugin, HealthBars::class.java) {
+class HealthBars(plugin: Plugin) : Feature(plugin, HealthBars::class.java) {
 
     private val colors = listOf(
-            ChatColor.DARK_RED,
-            ChatColor.RED,
-            ChatColor.GOLD,
-            ChatColor.YELLOW,
-            ChatColor.GREEN,
-            ChatColor.DARK_GREEN
+        ChatColor.DARK_RED,
+        ChatColor.RED,
+        ChatColor.GOLD,
+        ChatColor.YELLOW,
+        ChatColor.GREEN,
+        ChatColor.DARK_GREEN
     )
 
     private val namespacedKeyCustom = NamespacedKey(plugin, "generic.name.custom")
@@ -42,7 +42,7 @@ class HealthBars(plugin: Plugin) : Module(plugin, HealthBars::class.java) {
     private val healthBarStringCache: MutableMap<Int, HealthBarString> = mutableMapOf()
     private val healthBarWorkers: MutableMap<UUID, BukkitTask> = mutableMapOf()
 
-    override fun init() {
+    override fun onInit() {
         registerListener(HealthBarsListener(this))
         /* registerInitializers(Entity::class.java, {
             if (it is LivingEntity) {
@@ -54,6 +54,15 @@ class HealthBars(plugin: Plugin) : Module(plugin, HealthBars::class.java) {
                 }
             }
         }) */
+    }
+
+    override fun onTeardown() {
+        healthBarWorkers.forEach {
+            hideHealthBar(it.key)
+            it.value.cancel()
+        }
+
+        healthBarWorkers.clear()
     }
 
     /*private fun generateHealthBars(length: Int): Map<Int, String> {
@@ -97,6 +106,7 @@ class HealthBars(plugin: Plugin) : Module(plugin, HealthBars::class.java) {
         val uuid = livingEntity.uniqueId
         healthBarWorkers[uuid] = plugin.server.scheduler.runTaskLater(plugin, Runnable {
             hideHealthBar(uuid)
+            healthBarWorkers.remove(uuid)
         }, ticks)
     }
 
@@ -125,8 +135,6 @@ class HealthBars(plugin: Plugin) : Module(plugin, HealthBars::class.java) {
             entity.customName = previousName
             entity.isCustomNameVisible = it.second
         }
-
-        healthBarWorkers.remove(uuid)
     }
 
     fun hasPersistentCustomName(livingEntity: LivingEntity): Boolean {

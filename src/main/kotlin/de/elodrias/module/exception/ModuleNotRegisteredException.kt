@@ -11,6 +11,6 @@
 package de.elodrias.module.exception
 
 import de.elodrias.exception.NotRegisteredException
-import de.elodrias.module.Module
+import de.elodrias.module.Feature
 
-class ModuleNotRegisteredException(name: String) : NotRegisteredException(Module::class.java, name)
+class ModuleNotRegisteredException(name: String) : NotRegisteredException(Feature::class.java, name)

@@ -3,8 +3,3 @@ main: "de.elodrias.Elodrias"
 version: "0.0.1"
 api-version: "1.15"
 author: "Noxyro"
-commands:
-  elodrias:
-    description: Elodrias main command
-    usage: /elodrias <subcommand> <parameters>
-    aliases: [elo]
