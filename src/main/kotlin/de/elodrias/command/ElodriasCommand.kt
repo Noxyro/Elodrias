@@ -43,7 +43,6 @@ class ElodriasCommand(
         arguments: Array<out String>,
         location: Location?
     ): MutableList<String> {
-        println("Tab complete?")
         return mutableListOf()
     }
 

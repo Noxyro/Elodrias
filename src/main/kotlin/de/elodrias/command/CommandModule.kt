@@ -17,7 +17,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.command.SimpleCommandMap
 import org.bukkit.command.defaults.BukkitCommand
 import org.bukkit.plugin.Plugin
-import java.lang.reflect.Field
+import java.lang.reflect.InvocationTargetException
 
 
 abstract class CommandModule(
@@ -64,49 +64,48 @@ abstract class CommandModule(
 
     private fun register(): CommandModule {
         val server = plugin.server
-        getPrivateField(server.javaClass, "commandMap")?.let { commandMapField ->
-            (getFieldValue(commandMapField, server) as SimpleCommandMap).let { commandMap ->
-                if (!commandMap.register(plugin.name, CustomCommand())) throw CommandAlreadyRegisteredException(name)
-            }
-        }
+        val commandMap = getFieldValue(server.javaClass, "commandMap", server) as SimpleCommandMap
+        if (!commandMap.register(plugin.name, CustomCommand())) throw CommandAlreadyRegisteredException(name)
 
         return this
     }
 
     private fun unregister() {
         val server = plugin.server
-        getPrivateField(server.javaClass, "commandMap")?.let { commandMapField ->
-            (getFieldValue(commandMapField, server) as SimpleCommandMap).let { commandMap ->
-                getPrivateField(commandMap.javaClass.superclass, "knownCommands")?.let { knownCommandsField ->
-                    (getFieldValue(knownCommandsField, commandMap) as HashMap<*, *>).let { commands ->
-                        commands.remove(name)
-                        commands.remove("${plugin.name.toLowerCase()}:$name")
-                        aliases.forEach { alias ->
-                            commands.remove(alias)
-                            commands.remove("${plugin.name.toLowerCase()}:$alias")
-                        }
+        val commandMap = getFieldValue(server.javaClass, "commandMap", server) as SimpleCommandMap
+        val commands = getFieldValue(commandMap.javaClass.superclass, "knownCommands", commandMap) as HashMap<*, *>
 
-                        this.CustomCommand().unregister(commandMap)
-                    }
-                }
-            }
+        // Remove command and aliases from knownCommands
+        commands.remove(name)
+        commands.remove("${plugin.name.toLowerCase()}:$name")
+        aliases.forEach { alias ->
+            commands.remove(alias)
+            commands.remove("${plugin.name.toLowerCase()}:$alias")
         }
 
+        // Decouple command from commandMap
+        this.CustomCommand().unregister(commandMap)
+
+        // Delete helpMap entries
         server.helpMap.helpTopics.filter { topic ->
             topic.name.equals("/$name", true) || aliases.any { topic.name.equals("/$it", true) }
         }.forEach {
             server.helpMap.helpTopics.remove(it)
         }
 
-        // TODO: CraftBukkit - CraftServer - syncCommands()?
-        //  We need to update the commands for clients as well,
-        //  otherwise they will still see command auto-completion.
-
+        // Sync commands to players
+        invokePrivateMethod(server.javaClass, "syncCommands", server)
     }
 
-    private fun getFieldValue(field: Field, obj: Any): Any? {
+    private fun getFieldValue(clazz: Class<*>, field: String, obj: Any): Any? {
         try {
-            return field.get(obj)
+            val objectField = clazz.getDeclaredField(field)
+            objectField.isAccessible = true
+            return objectField.get(obj)
+        } catch (e: NoSuchFieldException) {
+            e.printStackTrace()
+        } catch (e: SecurityException) {
+            e.printStackTrace()
         } catch (e: IllegalArgumentException) {
             e.printStackTrace()
         } catch (e: IllegalAccessException) {
@@ -116,17 +115,25 @@ abstract class CommandModule(
         return null
     }
 
-    private fun getPrivateField(clazz: Class<*>, field: String): Field? {
+    private fun invokePrivateMethod(clazz: Class<*>, method: String, obj: Any, vararg args: Any?) {
         try {
-            val objectField = clazz.getDeclaredField(field)
-            objectField.isAccessible = true
-            return objectField
-        } catch (e: NoSuchFieldException) {
+            val objectMethod = clazz.getDeclaredMethod(method)
+            objectMethod.isAccessible = true
+            objectMethod.invoke(obj)
+        } catch (e: NoSuchMethodException) {
             e.printStackTrace()
         } catch (e: SecurityException) {
             e.printStackTrace()
+        } catch (e: IllegalAccessException) {
+            e.printStackTrace()
+        } catch (e: java.lang.IllegalArgumentException) {
+            e.printStackTrace()
+        } catch (e: InvocationTargetException) {
+            e.printStackTrace()
+        } catch (e: NullPointerException) {
+            e.printStackTrace()
+        } catch (e: ExceptionInInitializerError) {
+            e.printStackTrace()
         }
-
-        return null
     }
 }
