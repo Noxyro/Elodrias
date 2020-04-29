@@ -14,6 +14,8 @@ import de.elodrias.command.ElodriasCommand
 import de.elodrias.economy.Economy
 import de.elodrias.features.currencydrops.CurrencyDrops
 import de.elodrias.features.healthbars.HealthBars
+import de.elodrias.features.homes.Homes
+import de.elodrias.features.teleports.Teleports
 import de.elodrias.listener.ElodriasListener
 import de.elodrias.module.Module
 import de.elodrias.module.exception.ModuleAlreadyRegisteredException
@@ -51,6 +53,9 @@ class Elodrias : JavaPlugin() {
         registerModule(economy)
         registerModule(CurrencyDrops(this, economy))
         registerModule(HealthBars(this))
+        val teleports = Teleports(this)
+        registerModule(teleports)
+        registerModule(Homes(this, teleports))
     }
 
     private fun registerCoreCommands() {

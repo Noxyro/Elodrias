@@ -11,6 +11,7 @@
 package de.elodrias.module
 
 import org.bukkit.NamespacedKey
+import org.bukkit.command.CommandSender
 import org.bukkit.entity.Entity
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
@@ -62,16 +63,25 @@ abstract class Feature(
     }
 
     private fun invokeInitializer(clazz: Class<*>, functions: Array<out (Any) -> Unit>) {
-        val objects: Collection<Any>? = when (clazz) {
-            Entity::class.java -> plugin.server.worlds.flatMap { world -> world.entities }
-            else -> null
-        }
+	    val objects: Collection<Any>? = when (clazz) {
+		    Entity::class.java -> plugin.server.worlds.flatMap { world -> world.entities }
+		    else -> null
+	    }
 
-        objects?.forEach { obj ->
-            functions.forEach { init ->
-                init.invoke(obj)
-            }
-        }
+	    objects?.forEach { obj ->
+		    functions.forEach { init ->
+			    init.invoke(obj)
+		    }
+	    }
     }
+
+	fun checkEnabled(sender: CommandSender): Boolean {
+		if (!isEnabled()) {
+			sender.sendMessage("This feature is not enabled currently!")
+			return false
+		}
+
+		return true
+	}
 
 }

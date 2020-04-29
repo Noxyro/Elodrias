@@ -26,15 +26,13 @@ class ElodriasCommand(
     mutableListOf("elo")
 ) {
 
-    override fun onCommand(sender: CommandSender, alias: String, arguments: Array<out String>): Boolean {
+    override fun onCommand(sender: CommandSender, alias: String, arguments: Array<out String>) {
         when (arguments.size) {
             0 -> sender.sendMessage("${plugin.name} ${plugin.description.version}")
             else -> when (arguments[0]) {
                 "module" -> onModuleCommand(sender, arguments)
             }
         }
-
-        return true
     }
 
     override fun onTabComplete(
