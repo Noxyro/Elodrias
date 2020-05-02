@@ -22,26 +22,43 @@ import org.bukkit.plugin.Plugin
 import java.lang.Integer.min
 import java.lang.reflect.InvocationTargetException
 
+/**
+ * Represents a command which can be registered and unregistered from a [org.bukkit.Server].
+ *
+ * Holds an internal map of all registered sub [CommandModule]s with their respective aliases.
+ *
+ * Sub commands behave as if they were real commands, but are never registered to the [org.bukkit.Server],
+ * as they are only handled internally by the main [CommandModule] itself.
+ *
+ * When the main command is executed with a (registered) sub command as the first argument, the registered
+ * sub commands [onCommand] method will be called instead.
+ *
+ * To make a sub command available it need to be registered via [registerSubCommand].
+ */
 abstract class CommandModule(
-	val plugin: Plugin,
-	val name: String,
-	val description: String = "$name command",
-	val usage: String = "/$name",
-	val aliases: MutableList<String> = mutableListOf(),
-	val permission: String = "command.$name"
+		val plugin: Plugin,
+		val name: String,
+		val description: String = "$name command",
+		val usage: String = "/$name",
+		val aliases: MutableList<String> = mutableListOf(),
+		val permission: String = "command.$name"
 ) : Module("command:$name") {
 
+	/** The [CustomCommand] instance that was created with this command module. */
 	val command: CustomCommand = CustomCommand(name, description, usage, aliases, permission)
 
 	private val subCommands: MutableMap<String, CommandModule> = mutableMapOf()
 	private val subCommandAliases: MutableMap<String, String> = mutableMapOf()
 
+	/**
+	 * Custom command wrapper for a default BukkitCommand class.
+	 */
 	inner class CustomCommand(
-		name: String,
-		description: String,
-		usage: String,
-		aliases: MutableList<String>,
-		permission: String
+			name: String,
+			description: String,
+			usage: String,
+			aliases: MutableList<String>,
+			permission: String
 	) : BukkitCommand(name, description, usage, aliases) {
 
 		init {
@@ -64,34 +81,53 @@ abstract class CommandModule(
 		}
 
 		override fun tabComplete(
-			sender: CommandSender,
-			alias: String,
-			arguments: Array<out String>,
-			location: Location?
+				sender: CommandSender,
+				alias: String,
+				arguments: Array<out String>,
+				location: Location?
 		): MutableList<String> {
 			if (subCommandAliases.containsKey(alias)) {
 				return subCommands[subCommandAliases[alias]]?.onTabComplete(sender, alias, arguments, location)
-					?: mutableListOf()
+						?: mutableListOf()
 			}
 
 			return onTabComplete(sender, alias, arguments, location)
 		}
 	}
 
+	/**
+	 * Will be called when this command is being executed.
+	 *
+	 * If another sub command is registered and the first argument equals to the sub command, it will be called instead.
+	 */
 	abstract fun onCommand(sender: CommandSender, alias: String, arguments: Array<out String>)
 
+	/**
+	 * Will be called on any attempt to tab complete an argument of this command.
+	 */
 	abstract fun onTabComplete(
-		sender: CommandSender,
-		alias: String,
-		arguments: Array<out String>,
-		location: Location?
+			sender: CommandSender,
+			alias: String,
+			arguments: Array<out String>,
+			location: Location?
 	): MutableList<String>
 
+	/**
+	 * Registers a new sub command to this command.
+	 *
+	 * Sub commands are not registered as fully qualified commands on the server.
+	 *
+	 * They are always handled by their respective main command and are indirectly called through it.
+	 */
 	protected fun registerSubCommand(command: CommandModule) {
 		subCommands[command.name] = command
 		registerSubCommandAliases(command)
 	}
 
+
+	/**
+	 * Registers all names and aliases of the given sub command as aliases for the main command.
+	 */
 	private fun registerSubCommandAliases(command: CommandModule) {
 		subCommandAliases["${command.name}$name"] = command.name
 		command.aliases.forEach { alias ->
@@ -99,6 +135,12 @@ abstract class CommandModule(
 		}
 	}
 
+	/**
+	 * Executes the sub command with the given name, if it is registered.
+	 *
+	 * Calling this method will cut away the first entry of [arguments] by default.
+	 * Use [trim] = 0 to override this behavior.
+	 */
 	protected fun executeSubCommand(name: String, sender: CommandSender, arguments: Array<out String>, trim: Int = 1) {
 		if (!sender.hasPermission("$permission.$name")) {
 			sender.sendMessage("No permissions for this!")
@@ -106,19 +148,37 @@ abstract class CommandModule(
 		}
 
 		subCommands[name]?.onCommand(
-			sender,
-			name,
-			if (trim > 0) arguments.copyOfRange(min(trim, arguments.size), arguments.size) else arguments
+				sender,
+				name,
+				if (trim > 0) arguments.copyOfRange(min(trim, arguments.size), arguments.size) else arguments
 		)
 	}
 
 	override fun onInit() {}
 
-	override fun onEnable() {
+	/**
+	 * Will be called when this command gets enabled.
+	 *
+	 * This command and all its sub commands / modules will always be initialized at this point.
+	 *
+	 * Will always be called before any sub commands / modules are enabled.
+	 *
+	 * Overriding this method without calling its super implementation, will prevent automatic registering of this
+	 * command and all its sub commands. Therefore this method is final currently.
+	 */
+	final override fun onEnable() {
 		register()
 	}
 
-	override fun onDisable() {
+	/**
+	 * Will be called when this command gets disabled.
+	 *
+	 * Will always be called after all sub commands / modules are disabled.
+	 *
+	 * Overriding this method without calling its super implementation, will prevent automatic unregistering of this
+	 * command and all its sub commands. Therefore this method is final currently.
+	 */
+	final override fun onDisable() {
 		unregister()
 	}
 
@@ -129,7 +189,7 @@ abstract class CommandModule(
 		if (!commandMap.register(plugin.name, command)) throw CommandAlreadyRegisteredException(name)
 
 		val commands =
-			getFieldValue(commandMap.javaClass.superclass, "knownCommands", commandMap) as HashMap<String, Command>
+				getFieldValue(commandMap.javaClass.superclass, "knownCommands", commandMap) as HashMap<String, Command>
 
 		// Add sub command aliases to knownCommands
 		subCommandAliases.forEach { entry ->
@@ -139,15 +199,15 @@ abstract class CommandModule(
 			// Generate helpMap entries for sub commands
 			subCommands[entry.value]?.let {
 				server.helpMap.addTopic(
-					GenericCommandHelpTopic(
-						CustomCommand(
-							entry.key,
-							it.description,
-							it.usage,
-							it.aliases,
-							"${it.permission}.${entry.key}"
-						).apply { this.register(commandMap) }
-					)
+						GenericCommandHelpTopic(
+								CustomCommand(
+										entry.key,
+										it.description,
+										it.usage,
+										it.aliases,
+										"${it.permission}.${entry.key}"
+								).apply { this.register(commandMap) }
+						)
 				)
 			}
 		}

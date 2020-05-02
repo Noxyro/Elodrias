@@ -14,6 +14,7 @@ import de.elodrias.features.healthbars.event.HealthBarDisplayEvent
 import de.elodrias.features.healthbars.event.HealthBarHideEvent
 import de.elodrias.features.healthbars.event.HealthBarUpdateEvent
 import de.elodrias.features.healthbars.listener.HealthBarsListener
+import de.elodrias.features.healthbars.util.RepeatingCharPattern
 import de.elodrias.module.Feature
 import net.md_5.bungee.api.ChatColor
 import org.bukkit.NamespacedKey
@@ -39,7 +40,7 @@ class HealthBars(plugin: Plugin) : Feature(plugin, HealthBars::class.java) {
 
     private val namespacedKeyCustom = NamespacedKey(plugin, "generic.name.custom")
     private val namespacedKeyCustomVisible = NamespacedKey(plugin, "generic.name.custom.visible")
-    private val healthBarStringCache: MutableMap<Int, HealthBarString> = mutableMapOf()
+    private val repeatingCharPatternCache: MutableMap<Int, RepeatingCharPattern> = mutableMapOf()
     private val healthBarWorkers: MutableMap<UUID, BukkitTask> = mutableMapOf()
 
     override fun onInit() {
@@ -159,9 +160,9 @@ class HealthBars(plugin: Plugin) : Feature(plugin, HealthBars::class.java) {
 
     private fun getHealthBarString(health: Double, maxHealth: Double, length: Int = maxHealth.toInt()): String {
         val relative = (if (health > maxHealth) 1.0 else if (health < 0 || maxHealth == 0.0) 0.0 else health / maxHealth)
-        return healthBarStringCache.getOrPut(length) {
-            HealthBarString(length)
-        }.getFilledTo(ceil(relative * length).toInt(), pickColor(relative).toString())
+        return repeatingCharPatternCache.getOrPut(length) {
+            RepeatingCharPattern(length)
+        }.repeatTo(ceil(relative * length).toInt(), pickColor(relative).toString())
     }
 
     private fun getHealthBarString(livingEntity: LivingEntity, health: Double = livingEntity.health): String {
